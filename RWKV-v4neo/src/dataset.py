@@ -11,9 +11,20 @@ from .binidx import MMapIndexedDataset
 from .utils import MaybeIsPrime
 
 
+from .utils import TOKENIZER 
+TOKEN_MODE = "pile"                                                                                                
+WORD_NAME = [                                                                                                      
+    "20B_tokenizer.json",                                                                                          
+    "20B_tokenizer.json",                                                                                          
+]  # [vocab, vocab] for Pile model                                                                                 
+UNKNOWN_CHAR = None                                                                                                
+vocab_size = 50277 
+tokenizer = TOKENIZER(WORD_NAME, UNKNOWN_CHAR=UNKNOWN_CHAR)
+
 class MyDataset(Dataset):
     def __init__(self, args):
         self.args = args
+        self.vocab_size = args.vocab_size
 
         if args.data_type == "binidx":
             self.vocab_size = args.vocab_size
@@ -73,10 +84,10 @@ class MyDataset(Dataset):
                     cc = aa + bb
                     self.data += f".{aa}+{bb}={cc}."
             else:
-                self.data = open(args.data_file, "r", encoding=args.data_type).read()
+                self.data = tokenizer.tokenizer.encode(open(args.data_file, "r", encoding=args.data_type).read())
             rank_zero_info("Building token list...")
             unique = sorted(list(set(self.data)))
-            self.vocab_size = len(unique)
+    #        self.vocab_size = len(unique)
             # rank_zero_info()
             # for u in unique:
             #     print(u, end=' ')
@@ -86,12 +97,12 @@ class MyDataset(Dataset):
             for u in unique:
                 xxObj[xx] = u
                 xx += 1
-            with open(f"{args.proj_dir}/vocab.json", "w", encoding="utf-16le") as vocab_file:
-                vocab_file.write(json.dumps(xxObj, ensure_ascii=False))
+    #        with open(f"{args.proj_dir}/vocab.json", "w", encoding="utf-16le") as vocab_file:
+    #            vocab_file.write(json.dumps(xxObj, ensure_ascii=False))
             self.data_size = len(self.data)
             rank_zero_info(f"Data has {self.data_size} tokens, {self.vocab_size} vocab size.")
-            self.stoi = {ch: i for i, ch in enumerate(unique)}
-            self.itos = {i: ch for i, ch in enumerate(unique)}
+#            self.stoi = tokenizer.stoi #{ch: i for i, ch in enumerate(unique)}
+#            self.itos = tokenizer.itos #{i: ch for i, ch in enumerate(unique)}
 
     def __len__(self):
         return self.args.epoch_steps * self.args.micro_bsz
@@ -186,7 +197,9 @@ class MyDataset(Dataset):
                 elif args.data_type == "numpy":
                     dix = data[i : i + req_len]
                 else:
-                    dix = [self.stoi[s] for s in data[i : i + req_len]]
+                    dix = data[i : i + req_len]
+
+#                    dix = [self.stoi[s] for s in data[i : i + req_len]]
 
                 if args.my_qa_mask == 1:
                     if data == self.data_pile:
