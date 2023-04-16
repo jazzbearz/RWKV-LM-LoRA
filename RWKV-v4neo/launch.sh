@@ -17,3 +17,10 @@ python train.py --load_model /workspace/RWKV-4-Raven-7B-v8-EngAndMore-20230408-c
 
 # single 3090 7B (Over 55GB Ram Required, 22046MiB used)
 python train.py --load_model /workspace/RWKV-4-Raven-7B-v8-EngAndMore-20230408-ctx4096.pth --proj_dir /workspace/out --data_file /workspace/train.txt --data_type "utf-8" --vocab_size 50277 --ctx_len 2048 --epoch_steps 100 --epoch_count 1000 --epoch_begin 0 --epoch_save 5 --micro_bsz 1 --n_layer 24 --n_embd 4096 --pre_ffn 0 --head_qk 0 --lr_init 1e-4 --lr_final 1e-4 --warmup_steps 0 --beta1 0.9 --beta2 0.999 --adam_eps 1e-8 --accelerator gpu --devices 1 --precision bf16 --strategy deepspeed_stage_2 --grad_cp 0 --lora --lora_r 8 --lora_alpha 16 --lora_dropout 0.01 --lora_parts=att,time,ln
+
+# trying to test cu118 
+# export TOKENIZERS_PARALLELISM=false
+python train.py --load_model ../bak/RWKV-4-Raven-1B5-v8-Eng-20230408-ctx4096.pth --proj_dir out --data_file train.txt --data_type "utf-8" --vocab_size 50277 --ctx_len 256 --epoch_steps 100 --epoch_count 1000 --epoch_begin 0 --epoch_save 5 --micro_bsz 2 --n_layer 24 --n_embd 2048 --pre_ffn 0 --head_qk 0 --lr_init 1e-4 --lr_final 1e-4 --warmup_steps 0 --beta1 0.9 --beta2 0.999 --adam_eps 1e-8 --accelerator gpu --devices 1 --precision bf16 --strategy deepspeed_stage_2 --grad_cp 0 --lora --lora_r 8 --lora_alpha 16 --lora_dropout 0.01 --lora_parts=att,time,ln
+
+# single 4090 7B cu118 (Over 55GB Ram Required, 22046MiB used)
+python train.py --load_model /workspace/RWKV-4-Raven-7B-v8-EngAndMore-20230408-ctx4096.pth --proj_dir /workspace/out --data_file /workspace/train.txt --data_type "utf-8" --vocab_size 50277 --ctx_len 2048 --epoch_steps 100 --epoch_count 1000 --epoch_begin 0 --epoch_save 5 --micro_bsz 1 --n_layer 24 --n_embd 4096 --pre_ffn 0 --head_qk 0 --lr_init 1e-4 --lr_final 1e-4 --warmup_steps 0 --beta1 0.9 --beta2 0.999 --adam_eps 1e-8 --accelerator gpu --devices 1 --precision bf16 --strategy deepspeed_stage_2 --grad_cp 0 --lora --lora_r 8 --lora_alpha 16 --lora_dropout 0.01 --lora_parts=att,time,ln
